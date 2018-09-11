@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "scripts": {
     "start": "parcel src/index.html",
+    "prebuild": "rm -rf dist",
     "build": "parcel build src/index.html"
   },
   "devDependencies": {
     "@types/mithril": "^1.1.12",
+    "@types/node": "^10.9.4",
+    "@types/webpack-env": "^1.13.6",
     "parcel-bundler": "^1.9.7",
     "typescript": "^3.0.3"
   },
@@ -14,6 +17,7 @@
     "src": "./src"
   },
   "dependencies": {
+    "app": "^0.1.0",
     "mithril": "^1.1.6"
   }
 }

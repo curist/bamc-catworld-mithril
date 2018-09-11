@@ -1,5 +1,7 @@
+import m from 'mithril'
+
 export default {
   view() {
-    return 'hello world'
+    return m('.foo', 'hello world')
   }
 }
