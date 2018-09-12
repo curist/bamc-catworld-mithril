@@ -90,6 +90,35 @@ export default (vnode) => {
     state.prevCommand= cmd
   }
 
+  async function handleSpecialKeys(e) {
+    const { commandHistory, commandHistoryIndex } = state
+    const maxIndex = commandHistory.length - 1
+    const i = commandHistoryIndex == null
+      ? maxIndex :  commandHistoryIndex
+
+    switch(keycode(e)) {
+      case 'up': {
+        const nextCmdHistoryIndex = Math.max(0, i - 1)
+        const cmd = commandHistory[nextCmdHistoryIndex]
+        el.input.value = cmd
+        el.input.select()
+        state.commandHistoryIndex = nextCmdHistoryIndex
+        break
+      }
+      case 'down': {
+        const nextCmdHistoryIndex = Math.min(maxIndex, i + 1)
+        const cmd = commandHistory[nextCmdHistoryIndex]
+        el.input.value = cmd
+        el.input.select()
+        state.commandHistoryIndex = nextCmdHistoryIndex
+        break
+      }
+      default: {
+
+      }
+    }
+  }
+
   const view = () => {
     return m('.App', [
       m('.container', {
@@ -100,6 +129,7 @@ export default (vnode) => {
       m('form', { onsubmit: sendCommand }, [
         m('input.input', {
           oncreate: vn => el.input = vn.dom,
+          onkeyup: handleSpecialKeys,
           spellcheck: false,
           autofocus: true,
         })
