@@ -2,13 +2,13 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es5",
-        "noImplicitAny": true,
         "sourceMap": true,
         "experimentalDecorators": true,
         "esModuleInterop": true,
         "baseUrl": ".",
         "paths": {
             "src/*": ["src/*"]
-        }
+        },
+        "lib": ["dom", "es2015"]
     }
 }
