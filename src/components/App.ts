@@ -1,10 +1,11 @@
 import m from 'mithril'
 
 import Bamc from 'bamc-core'
-import { URL } from 'src/config'
+import { THEME, URL } from 'src/config'
 import keycode from 'keycode'
 import AnsiUp from 'ansi_up'
 const ansi = new AnsiUp()
+ansi.use_classes = true
 
 const debug = require('debug')('bamc-cw:App')
 
@@ -122,7 +123,8 @@ export default (vnode) => {
   const view = () => {
     return m('.App', [
       m('.container', {
-        oncreate: vn => el.container = vn.dom
+        class: THEME,
+        oncreate: vn => el.container = vn.dom,
       }, state.lines.map(({ index, content }) => {
         return m('div', { key: index }, m.trust(content))
       })),

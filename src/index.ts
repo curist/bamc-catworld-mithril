@@ -7,8 +7,8 @@ function mountApplication() {
 }
 
 function init() {
-  // TODO should/can require styles here
   require('src/styles.less')
+  require('src/themes.less')
   mountApplication()
 }
 
