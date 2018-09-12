@@ -1,16 +1,4 @@
 # webapp
 
-Bare bone web app.
+Barely a catworld mud client, using mithril.js
 
-## dev
-
-```sh
-npm i
-npm start
-```
-
-## prod
-
-```sh
-npm run build
-```
