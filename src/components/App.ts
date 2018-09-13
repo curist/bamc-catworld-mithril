@@ -1,7 +1,8 @@
 import m from 'mithril'
 
-import Bamc from 'bamc-core'
-import { THEME, URL } from 'src/config'
+import connect from 'src/connect'
+import { THEME } from 'src/config'
+
 import keycode from 'keycode'
 import AnsiUp from 'ansi_up'
 const ansi = new AnsiUp()
@@ -33,9 +34,11 @@ export default (vnode) => {
     input: null,
   }
 
-  const bamc = this.bamc = Bamc(URL)
+  const bamc = connect()
   bamc.on('line', updateLine)
-  bamc.on('iac:sub:gmcp', async buffer => debug(buffer.toString()))
+  bamc.on('bamc-cw:gmcp', async ({ name, payload }) => {
+    debug(name, payload)
+  })
 
   async function updateLine(line) {
     const { container } = el
