@@ -8,14 +8,14 @@ import AnsiUp from 'ansi_up'
 const ansi = new AnsiUp()
 ansi.use_classes = true
 
+import Clusterize from 'clusterize.js'
+
 const debug = require('debug')('bamc-cw:App')
 
 import './App.less'
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const defer = async task => (await delay(0), task())
-
-const MAX_LINES = 2000
 
 const gmcpHandlerBuilder = bamc => ({
   'auto-login.username': payload => {
@@ -40,20 +40,22 @@ const gmcpHandlerBuilder = bamc => ({
 
 export default (vnode) => {
   const state = {
-    lines: [],
-    lineIndex: 0,
     commandHistory: [],
     commandHistoryIndex: null,
     prevCommand: null,
+    shouldScroll: false,
   }
 
   let bufferedLines = []
   let refreshLineTimeout = null
 
   const el = {
+    scroll: null,
     container: null,
     input: null,
   }
+
+  let clusterize = null
 
   const bamc = connect()
   bamc.on('line', updateLine)
@@ -71,13 +73,10 @@ export default (vnode) => {
   })
 
   async function updateLine(line) {
-    const { container } = el
+    const { scroll } = el
 
-    state.lineIndex += 1
-    bufferedLines.push({
-      index: state.lineIndex,
-      content: ansi.ansi_to_html(line),
-    })
+    const markup = `<div>${ansi.ansi_to_html(line)}</div>`
+    bufferedLines.push(markup)
 
     if(refreshLineTimeout) {
       return
@@ -85,17 +84,11 @@ export default (vnode) => {
 
     refreshLineTimeout = setTimeout(async () => {
       refreshLineTimeout = null
-      const allLines = state.lines.concat(bufferedLines)
+
+      clusterize.append(bufferedLines)
+      state.shouldScroll = true
       bufferedLines = []
 
-      state.lines = allLines.slice(-1 * MAX_LINES)
-      m.redraw()
-
-      // TODO use mutation observer to handle this
-      await delay(0)
-      if(container.scrollTop !== container.scrollHeight) {
-        container.scrollTop = container.scrollHeight
-      }
     }, 20)
   }
 
@@ -153,14 +146,36 @@ export default (vnode) => {
     }
   }
 
+  const oncreate = async vn => {
+    // defer to wait for other dom nodes refs
+    await delay(0)
+    const { scroll } = el
+    clusterize = new Clusterize({
+      scrollElem: el.scroll,
+      contentElem: el.container,
+      callbacks: {
+        clusterChanged: async () => {
+          await delay(0)
+          if(!state.shouldScroll) {
+            return
+          }
+          state.shouldScroll = false
+          scroll.scrollTop = 1e10
+        },
+      },
+    })
+  }
+
   const view = () => {
     return m('.App', [
-      m('.container', {
-        class: THEME,
-        oncreate: vn => el.container = vn.dom,
-      }, state.lines.map(({ index, content }) => {
-        return m('div', { key: index }, m.trust(content))
-      })),
+      m('.clusterize-scroll', {
+        oncreate: vn => el.scroll = vn.dom,
+      }, [
+        m('.container.clusterize-content', {
+          class: THEME,
+          oncreate: vn => el.container = vn.dom,
+        }),
+      ]),
       m('form', { onsubmit: sendCommand }, [
         m('input.input', {
           oncreate: vn => el.input = vn.dom,
@@ -172,5 +187,5 @@ export default (vnode) => {
     ])
   }
 
-  return { view }
+  return { view, oncreate }
 }

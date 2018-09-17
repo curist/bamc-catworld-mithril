@@ -1,6 +1,8 @@
 import m, { mount } from 'mithril'
 import App from 'src/components/App'
 
+import 'clusterize.js/clusterize.css'
+
 function mountApplication() {
   const root = document.getElementById('app')
   mount(root, App)
