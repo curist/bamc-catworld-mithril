@@ -17,6 +17,27 @@ const defer = async task => (await delay(0), task())
 
 const MAX_LINES = 2000
 
+const gmcpHandlerBuilder = bamc => ({
+  'auto-login.username': payload => {
+    bamc.emit('action', {
+      type: 'send',
+      message: localStorage.user,
+    })
+  },
+  'auto-login.password': payload => {
+    bamc.emit('action', {
+      type: 'send',
+      message: localStorage.password,
+    })
+  },
+  'char.id': charname => {
+    bamc.emit('action', {
+      type: 'cmd',
+      message: 'sync_time',
+    })
+  },
+})
+
 export default (vnode) => {
   const state = {
     lines: [],
@@ -36,8 +57,17 @@ export default (vnode) => {
 
   const bamc = connect()
   bamc.on('line', updateLine)
+
+  bamc.on('iac:sub', payload => debug(payload))
+
+  const gmcpHandlers = gmcpHandlerBuilder(bamc)
   bamc.on('bamc-cw:gmcp', async ({ name, payload }) => {
     debug(name, payload)
+    const handler = gmcpHandlers[name]
+    if(!handler) {
+      return
+    }
+    handler(payload)
   })
 
   async function updateLine(line) {
