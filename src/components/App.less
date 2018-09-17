@@ -3,32 +3,42 @@
     flex-direction: column;
     height: 100%;
     padding: 8px;
-    .clusterize-scroll {
+
+    & > .clusterize-scroll {
         height: 100%;
         max-height: inherit;
         background-color: #111;
         color: white;
+
+        & > .container {
+            flex: 1;
+            font-family: BAMC;
+            margin: 0;
+            padding: 15px;
+            overflow: auto;
+
+            & > div {
+                line-height: 22px;
+                white-space: pre-wrap;
+            }
+        }
     }
 
-    .container {
-        flex: 1;
-        font-family: BAMC;
-        margin: 0;
-        padding: 15px;
-        overflow: auto;
-    }
-
-    .container > div {
-        line-height: 22px;
-        white-space: pre-wrap;
-    }
-
-    .input {
-        padding: 6px 8px;
+    & > form {
         width: 100%;
-        outline: none;
-        font-size: 16px;
         margin-top: 8px;
+        display: flex;
+        flex-direction: row;
+        & > .input {
+            flex: 1;
+            padding: 6px 8px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        & > button {
+            font-size: 16px;
+        }
     }
 }
 
