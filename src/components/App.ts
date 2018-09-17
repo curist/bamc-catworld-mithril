@@ -44,6 +44,7 @@ export default (vnode) => {
     commandHistoryIndex: null,
     prevCommand: null,
     shouldScroll: false,
+    lockScroll: false,
   }
 
   let bufferedLines = []
@@ -85,11 +86,26 @@ export default (vnode) => {
     refreshLineTimeout = setTimeout(async () => {
       refreshLineTimeout = null
 
-      clusterize.append(bufferedLines)
+      if(state.lockScroll) {
+        return
+      }
       state.shouldScroll = true
+      clusterize.append(bufferedLines)
       bufferedLines = []
-
     }, 20)
+  }
+
+  async function toggleScrollLock(e) {
+    e.preventDefault()
+    const { lockScroll } = state
+    state.lockScroll = !lockScroll
+
+    // previously locked, should update buffer
+    if( lockScroll ) {
+      state.shouldScroll = true
+      clusterize.append(bufferedLines)
+      bufferedLines = []
+    }
   }
 
   async function sendCommand(e) {
@@ -155,18 +171,20 @@ export default (vnode) => {
       contentElem: el.container,
       callbacks: {
         clusterChanged: async () => {
-          await delay(0)
           if(!state.shouldScroll) {
             return
           }
           state.shouldScroll = false
-          scroll.scrollTop = 1e10
+
+          await delay(50)
+          scroll.scrollTop = scroll.scrollHeight
         },
       },
     })
   }
 
   const view = () => {
+    const { lockScroll } = state
     return m('.App', [
       m('.clusterize-scroll', {
         oncreate: vn => el.scroll = vn.dom,
@@ -182,7 +200,14 @@ export default (vnode) => {
           onkeyup: handleSpecialKeys,
           spellcheck: false,
           autofocus: true,
-        })
+        }),
+        m('button', {
+          type: 'button',
+          onclick: toggleScrollLock,
+        }, lockScroll
+          ? m.trust('&#128274;')
+          : m.trust('&#128275;')
+        ),
       ]),
     ])
   }
