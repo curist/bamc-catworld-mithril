@@ -165,22 +165,20 @@ export default (vnode) => {
   const oncreate = async vn => {
     // defer to wait for other dom nodes refs
     await delay(0)
-    const { scroll } = el
+    const { scroll, container } = el
     clusterize = new Clusterize({
       scrollElem: el.scroll,
       contentElem: el.container,
-      callbacks: {
-        clusterChanged: async () => {
-          if(!state.shouldScroll) {
-            return
-          }
-          state.shouldScroll = false
-
-          await delay(50)
-          scroll.scrollTop = scroll.scrollHeight
-        },
-      },
     })
+
+    const observer = new MutationObserver(mutations => {
+      if(!state.shouldScroll) {
+        return
+      }
+      state.shouldScroll = false
+      scroll.scrollTop = scroll.scrollHeight
+    })
+    observer.observe(container, { childList: true })
   }
 
   const view = () => {
