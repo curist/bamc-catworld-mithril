@@ -8,7 +8,7 @@ import AnsiUp from 'ansi_up'
 const ansi = new AnsiUp()
 ansi.use_classes = true
 
-import Clusterize from 'clusterize.js'
+import Virtualized from 'src/widgets/Virtualized'
 
 const debug = require('debug')('bamc-cw:App')
 
@@ -38,7 +38,7 @@ const gmcpHandlerBuilder = bamc => ({
   },
 })
 
-export default (vnode) => {
+export default vnode => {
   const state = {
     commandHistory: [],
     commandHistoryIndex: null,
@@ -51,12 +51,11 @@ export default (vnode) => {
   let refreshLineTimeout = null
 
   const el = {
-    scroll: null,
     container: null,
     input: null,
   }
 
-  let clusterize = null
+  let addData
 
   const bamc = connect()
   bamc.on('line', updateLine)
@@ -74,10 +73,7 @@ export default (vnode) => {
   })
 
   async function updateLine(line) {
-    const { scroll } = el
-
-    const markup = `<div>${ansi.ansi_to_html(line)}</div>`
-    bufferedLines.push(markup)
+    bufferedLines.push(ansi.ansi_to_html(line))
 
     if(refreshLineTimeout) {
       return
@@ -90,7 +86,8 @@ export default (vnode) => {
         return
       }
       state.shouldScroll = true
-      clusterize.append(bufferedLines)
+
+      addData(bufferedLines)
       bufferedLines = []
     }, 20)
   }
@@ -103,7 +100,8 @@ export default (vnode) => {
     // previously locked, should update buffer
     if( lockScroll ) {
       state.shouldScroll = true
-      clusterize.append(bufferedLines)
+
+      addData(bufferedLines)
       bufferedLines = []
     }
   }
@@ -165,33 +163,33 @@ export default (vnode) => {
   const oncreate = async vn => {
     // defer to wait for other dom nodes refs
     await delay(0)
-    const { scroll, container } = el
-    clusterize = new Clusterize({
-      scrollElem: el.scroll,
-      contentElem: el.container,
-    })
 
     const observer = new MutationObserver(mutations => {
       if(!state.shouldScroll) {
         return
       }
       state.shouldScroll = false
-      scroll.scrollTop = scroll.scrollHeight
+      el.container.scrollTop = el.container.scrollHeight
     })
-    observer.observe(container, { childList: true })
+    observer.observe(el.container, { childList: true })
+
+  }
+
+  const LineItem = {
+    view: vnode => m('div', m.trust(vnode.attrs.data)),
   }
 
   const view = () => {
     const { lockScroll } = state
     return m('.App', [
-      m('.clusterize-scroll', {
-        oncreate: vn => el.scroll = vn.dom,
-      }, [
-        m('.container.clusterize-content', {
-          class: THEME,
-          oncreate: vn => el.container = vn.dom,
-        }),
-      ]),
+      m(Virtualized, {
+        class: `${THEME} container`,
+        oncreate: vn => {
+          el.container = vn.dom
+          addData = vn.state.addData
+        },
+        renderItem: LineItem,
+      }),
       m('form', { onsubmit: sendCommand }, [
         m('input.input', {
           oncreate: vn => el.input = vn.dom,
@@ -202,10 +200,7 @@ export default (vnode) => {
         m('button', {
           type: 'button',
           onclick: toggleScrollLock,
-        }, lockScroll
-          ? m.trust('&#128274;')
-          : m.trust('&#128275;')
-        ),
+        }, lockScroll ? m.trust('&#128274;') : m.trust('&#128275;')),
       ]),
     ])
   }

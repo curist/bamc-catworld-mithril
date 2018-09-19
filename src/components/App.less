@@ -4,24 +4,21 @@
     height: 100%;
     padding: 8px;
 
-    & > .clusterize-scroll {
-        height: 100%;
-        max-height: inherit;
+
+    & > .container {
+        flex: 1;
+        overflow: auto;
+        margin: 0;
+        padding: 15px;
+
+        font-family: BAMC;
         background-color: #111;
         color: white;
 
-        & > .container {
-            flex: 1;
-            font-family: BAMC;
-            margin: 0;
-            padding: 15px;
-            overflow: auto;
-
-            & > div {
-                min-height: 22px;
-                line-height: 22px;
-                white-space: pre-wrap;
-            }
+        & > div {
+            min-height: 1.1em;
+            line-height: 1.1em;
+            white-space: pre-wrap;
         }
     }
 
