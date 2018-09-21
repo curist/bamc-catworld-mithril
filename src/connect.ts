@@ -6,6 +6,10 @@ const debug = require('debug')('bamc-cw:connect')
 export default function() {
   const bamc = Bamc(URL)
 
+  bamc.on('iac:sub', async ({option, buffer}) => {
+    debug('iac:sub', option)
+    debug('iac:sub', buffer)
+  })
   bamc.on('iac:sub:gmcp', async buffer => {
     const str = buffer.toString()
     const spaceIndex = str.indexOf(' ')

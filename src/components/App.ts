@@ -43,7 +43,6 @@ export default vnode => {
     commandHistory: [],
     commandHistoryIndex: null,
     prevCommand: null,
-    shouldScroll: false,
     lockScroll: false,
   }
 
@@ -55,7 +54,7 @@ export default vnode => {
     input: null,
   }
 
-  let addData
+  let addLines
 
   const bamc = connect()
   bamc.on('line', updateLine)
@@ -82,12 +81,7 @@ export default vnode => {
     refreshLineTimeout = setTimeout(async () => {
       refreshLineTimeout = null
 
-      if(state.lockScroll) {
-        return
-      }
-      state.shouldScroll = true
-
-      addData(bufferedLines)
+      addLines(bufferedLines)
       bufferedLines = []
     }, 20)
   }
@@ -96,14 +90,6 @@ export default vnode => {
     e.preventDefault()
     const { lockScroll } = state
     state.lockScroll = !lockScroll
-
-    // previously locked, should update buffer
-    if( lockScroll ) {
-      state.shouldScroll = true
-
-      addData(bufferedLines)
-      bufferedLines = []
-    }
   }
 
   async function sendCommand(e) {
@@ -160,23 +146,8 @@ export default vnode => {
     }
   }
 
-  const oncreate = async vn => {
-    // defer to wait for other dom nodes refs
-    await delay(0)
-
-    const observer = new MutationObserver(mutations => {
-      if(!state.shouldScroll) {
-        return
-      }
-      state.shouldScroll = false
-      el.container.scrollTop = el.container.scrollHeight
-    })
-    observer.observe(el.container, { childList: true })
-
-  }
-
   const LineItem = {
-    view: vnode => m('div', m.trust(vnode.attrs.data)),
+    view: vnode => m('div', m.trust(vnode.attrs.line)),
   }
 
   const view = () => {
@@ -186,8 +157,9 @@ export default vnode => {
         class: `${THEME} container`,
         oncreate: vn => {
           el.container = vn.dom
-          addData = vn.state.addData
+          addLines = vn.state.addLines
         },
+        lockScroll,
         renderItem: LineItem,
       }),
       m('form', { onsubmit: sendCommand }, [
@@ -205,5 +177,5 @@ export default vnode => {
     ])
   }
 
-  return { view, oncreate }
+  return { view }
 }
