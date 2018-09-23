@@ -1,13 +1,20 @@
 import m from 'mithril'
+import { URL } from 'src/config'
 
 const gmcpHandlerBuilder = (bamc, state) => ({
   'auto-login.username': payload => {
+    if(!localStorage.user || localStorage.ws_url !== URL) {
+      return
+    }
     bamc.emit('action', {
       type: 'send',
       message: localStorage.user,
     })
   },
   'auto-login.password': payload => {
+    if(!localStorage.password || localStorage.ws_url !== URL) {
+      return
+    }
     bamc.emit('action', {
       type: 'send',
       message: localStorage.password,
