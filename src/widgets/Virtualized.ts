@@ -57,7 +57,12 @@ export default function Virtualized(vnode) {
   }
 
   const onupdate = vnode => {
-    state.lockScroll = vnode.attrs.lockScroll
+    if(state.lockScroll !==vnode.attrs.lockScroll) {
+      state.lockScroll = vnode.attrs.lockScroll
+      if(!state.lockScroll) {
+        el.scroll.scrollTop = el.scroll.scrollHeight
+      }
+    }
   }
 
   const view = vnode => {

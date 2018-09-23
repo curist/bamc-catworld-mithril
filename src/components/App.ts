@@ -44,6 +44,7 @@ export default vnode => {
     chatBegin: false,
     lockScroll: false,
     showChat: false,
+    lockChatScroll: false,
 
     room: {},
     emap: {},
@@ -127,6 +128,12 @@ export default vnode => {
     state.lockScroll = !lockScroll
   }
 
+  async function toggleChatScrollLock(e) {
+    e.preventDefault()
+    const { lockChatScroll } = state
+    state.lockChatScroll = !lockChatScroll
+  }
+
   function toggleChatView(e) {
     e.preventDefault()
     const { showChat } = state
@@ -199,19 +206,26 @@ export default vnode => {
   }
 
   const view = () => {
-    const { lockScroll } = state
+    const { lockScroll, lockChatScroll } = state
     const chatViewClass = !state.showChat ? 'hide' : ''
 
     return m('.App', [
       m('.content', [
         m('.main-view', [
-          m(Virtualized, {
-            class: `${THEME} chat-view ${chatViewClass}`,
-            oncreate: vn => {
-              fns.addChatLine = vn.state.addLine
-            },
-            renderItem: LineItem,
-          }),
+          m('.chat-view', {class: chatViewClass}, [
+            m(Virtualized, {
+              class: THEME,
+              oncreate: vn => {
+                fns.addChatLine = vn.state.addLine
+              },
+              lockScroll: lockChatScroll,
+              renderItem: LineItem,
+            }),
+            m('button', {
+              type: 'button',
+              onclick: toggleChatScrollLock,
+            },  lockChatScroll ? m.trust('&#128274;') : m.trust('&#128275;')),
+          ]),
           m(Virtualized, {
             class: `${THEME} container`,
             oncreate: vn => {
