@@ -82,13 +82,14 @@ export default function Virtualized(vnode) {
       },
       style: {
         position: 'relative',
-        height: totalHeight + 'px',
-        width: '100%',
         overflow: 'hidden',
+        width: '100%',
+        height: totalHeight + 'px',
       },
     }, lines.slice(start).map(({key, line}) => {
       const i = key
       const offset = lineOffsets[i]
+
       // already measured
       if(offset !== undefined) {
         if(key > end) {
@@ -103,6 +104,7 @@ export default function Virtualized(vnode) {
           },
         })
       }
+      // render measurement dom node
       return m(renderItem, {
         key, line,
         style: {
@@ -113,8 +115,11 @@ export default function Virtualized(vnode) {
         oncreate: vnode => {
           let MIN_HEIGHT = Math.min.apply(null, lineHeights.slice(0, 3).concat([0]))
           const height = vnode.dom.clientHeight || MIN_HEIGHT
-          const prevOffset = lineOffsets[i - 1] || totalHeight
           const prevHeight = lineHeights[i - 1] || MIN_HEIGHT
+          const prevOffset = lineOffsets[i - 1] !== undefined 
+            ? lineOffsets[i - 1]
+            : totalHeight
+
           lineHeights[i] = height
           lineOffsets[i] = prevOffset + prevHeight
           m.redraw()
