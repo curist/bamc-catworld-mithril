@@ -111,9 +111,10 @@ export default function Virtualized(vnode) {
           width: '100%',
         },
         oncreate: vnode => {
-          const height = vnode.dom.clientHeight || 0
-          const prevOffset = lineOffsets[i - 1] || 0
-          const prevHeight = lineHeights[i - 1] || 0
+          let MIN_HEIGHT = Math.min.apply(null, lineHeights.slice(0, 3).concat([0]))
+          const height = vnode.dom.clientHeight || MIN_HEIGHT
+          const prevOffset = lineOffsets[i - 1] || totalHeight
+          const prevHeight = lineHeights[i - 1] || MIN_HEIGHT
           lineHeights[i] = height
           lineOffsets[i] = prevOffset + prevHeight
           m.redraw()

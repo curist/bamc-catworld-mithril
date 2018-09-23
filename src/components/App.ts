@@ -106,7 +106,6 @@ export default vnode => {
       fns.addChatLine(`[${time}]` + ansi.ansi_to_html(line))
       state.showChat = true
       state.chatBegin = false
-      defer(() => el.content.scrollTop = el.content.scrollHeight)
     }
     bufferedLines.push(ansi.ansi_to_html(line))
 
@@ -204,7 +203,7 @@ export default vnode => {
   }
 
   const LineItem = {
-    view: ({ attrs }) => m('div', attrs, m.trust(attrs.line)),
+    view: ({ attrs }) => m('div', {style: attrs.style}, m.trust(attrs.line)),
   }
 
   const view = () => {
