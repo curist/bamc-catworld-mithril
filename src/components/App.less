@@ -4,23 +4,35 @@
     height: 100%;
     padding: 8px;
 
-
-    & > .container {
+    & > .main-view {
+        display: flex;
         flex: 1;
-        overflow: auto;
-        margin: 0;
-        padding: 15px;
+        flex-direction: row;
 
-        font-family: BAMC;
-        background-color: #111;
-        color: white;
+        & > .container {
+            flex: 1;
+            overflow: auto;
+            margin: 0;
+            padding: 15px;
 
-        & > div {
-            min-height: 1.1em;
-            line-height: 1.1em;
-            white-space: pre-wrap;
+            font-family: BAMC;
+            background-color: #111;
+            color: white;
+
+            & > div {
+                min-height: 1.1em;
+                line-height: 1.1em;
+                white-space: pre-wrap;
+            }
+        }
+
+        & > .side-view {
+            margin-left: 5px;
+            display: flex;
+            flex-direction: column;
         }
     }
+
 
     & > form {
         width: 100%;

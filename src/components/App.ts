@@ -9,6 +9,7 @@ const ansi = new AnsiUp()
 ansi.use_classes = true
 
 import Virtualized from 'src/widgets/Virtualized'
+import HpView from 'src/components/HpView'
 
 const debug = require('debug')('bamc-cw:App')
 
@@ -17,7 +18,7 @@ import './App.less'
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const defer = async task => (await delay(0), task())
 
-const gmcpHandlerBuilder = bamc => ({
+const gmcpHandlerBuilder = (bamc, state) => ({
   'auto-login.username': payload => {
     bamc.emit('action', {
       type: 'send',
@@ -36,6 +37,10 @@ const gmcpHandlerBuilder = bamc => ({
       message: 'sync_time',
     })
   },
+  'char.vitals': payload => {
+    state.vitals = payload
+    m.redraw()
+  },
 })
 
 export default vnode => {
@@ -44,6 +49,8 @@ export default vnode => {
     commandHistoryIndex: null,
     prevCommand: null,
     lockScroll: false,
+
+    vitals: {},
   }
 
   let bufferedLines = []
@@ -61,11 +68,11 @@ export default vnode => {
 
   bamc.on('iac:sub', payload => debug(payload))
 
-  const gmcpHandlers = gmcpHandlerBuilder(bamc)
+  const gmcpHandlers = gmcpHandlerBuilder(bamc, state)
   bamc.on('bamc-cw:gmcp', async ({ name, payload }) => {
-    debug(name, payload)
     const handler = gmcpHandlers[name]
     if(!handler) {
+      debug(name, payload)
       return
     }
     handler(payload)
@@ -172,15 +179,21 @@ export default vnode => {
   const view = () => {
     const { lockScroll } = state
     return m('.App', [
-      m(Virtualized, {
-        class: `${THEME} container`,
-        oncreate: vn => {
-          el.container = vn.dom
-          addLines = vn.state.addLines
-        },
-        lockScroll,
-        renderItem: LineItem,
-      }),
+      m('.main-view', [
+        m(Virtualized, {
+          class: `${THEME} container`,
+          oncreate: vn => {
+            el.container = vn.dom
+            addLines = vn.state.addLines
+          },
+          lockScroll,
+          renderItem: LineItem,
+        }),
+        m('.side-view', [
+          m('div', 'emap'),
+          m(HpView, state.vitals),
+        ]),
+      ]),
       m('form', { onsubmit: sendCommand }, [
         m('input.input', {
           oncreate: vn => el.input = vn.dom,
