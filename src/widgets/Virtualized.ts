@@ -2,6 +2,8 @@ import m from 'mithril'
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+const sum = arr => arr.reduce((total, n) => total + (n || 0), 0)
+
 export default function Virtualized(vnode) {
   const { renderItem } = vnode.attrs
   let lines = []
@@ -15,6 +17,7 @@ export default function Virtualized(vnode) {
   }
 
   let el = {
+    scroll: null,
     content: null,
   }
 
@@ -45,21 +48,23 @@ export default function Virtualized(vnode) {
   }
 
   function findFirstVisibleIndexRange(scrollTop) {
-    let i = 0, start
-    while(scrollTop > lineOffsets[i++]);
-    start = Math.max(0, i - 2)
-    // TODO find the real start, end
-    return [start, Math.min(start + 50, lineOffsets.length - 1)]
+    let i = 0, len = lineOffsets.length, start, end
+    while(i < len && scrollTop >= lineOffsets[i++]);
+    start = Math.max(0, i - 5)
+    while(i < len && scrollTop < lineOffsets[i++]);
+    return [start, Math.min(end + 5, lineOffsets.length - 1)]
   }
 
-  function trackAndScrollToBottom(el) {
-    const ob = new MutationObserver(mutations => {
+  const oncreate = async vnode => {
+    await delay(0)
+
+    const ob = new MutationObserver(async mutations => {
       if(state.lockScroll) {
         return
       }
-      el.scrollTop = el.scrollHeight
+      el.scroll.scrollTop = el.scroll.scrollHeight
     })
-    ob.observe(el, { childList: true })
+    ob.observe(el.content, { attributes: true })
   }
 
   const onupdate = vnode => {
@@ -68,35 +73,59 @@ export default function Virtualized(vnode) {
 
   const view = () => {
     const [ start, end ] = findFirstVisibleIndexRange(state.scrollTop)
-    const totalHeight = lineOffsets.slice(-1)[0] + lineHeights.slice(-1)[0]
-    const topStubHeight = lineOffsets[start]
-    const botStubHeight = totalHeight - lineOffsets[end] - lineHeights[end]
+    const totalHeight = sum(lineHeights)
     return m('.virtualized', {
       class: vnode.attrs.class,
       oncreate(vnode) {
-        el.content = vnode.dom
-        trackAndScrollToBottom(el.content)
+        el.scroll = vnode.dom
       },
       onscroll(e) {
         state.scrollTop = e.target.scrollTop
       },
-    }, [
-      m(StubView, { height: topStubHeight }),
-      m.fragment({}, lines.slice(start).map(({key, line}, i) => {
+    }, m('.wrap', {
+      oncreate(vnode) {
+        el.content = vnode.dom
+      },
+      style: {
+        position: 'relative',
+        height: totalHeight + 'px',
+        width: '100%',
+        overflow: 'hidden',
+      },
+    }, lines.slice(start).map(({key, line}) => {
+      const i = key
+      const offset = lineOffsets[i]
+      if(offset !== undefined) {
+        if(key > end) {
+          return null
+        }
         return m(renderItem, {
           key, line,
-          oncreate: vnode => {
-            const height = vnode.dom.clientHeight || 0
-            const prevOffset = lineOffsets[i - 1] || 0
-            const prevHeight = lineHeights[i - 1] || 0
-            lineHeights[i] = height
-            lineOffsets[i] = prevOffset + prevHeight
+          style: {
+            position: 'absolute',
+            top: offset + 'px',
+            width: '100%',
           },
         })
-      })),
-      // m(StubView, { height: botStubHeight }),
-    ])
+      }
+      return m(renderItem, {
+        key, line,
+        style: {
+          position: 'absolute',
+          top: '-10000px',
+          width: '100%',
+        },
+        oncreate: vnode => {
+          const height = vnode.dom.clientHeight || 0
+          const prevOffset = lineOffsets[i - 1] || 0
+          const prevHeight = lineHeights[i - 1] || 0
+          lineHeights[i] = height
+          lineOffsets[i] = prevOffset + prevHeight
+          m.redraw()
+        },
+      })
+    })))
   }
 
-  return { view, onupdate, addLine, addLines }
+  return { view, oncreate, onupdate, addLine, addLines }
 }

@@ -147,7 +147,7 @@ export default vnode => {
   }
 
   const LineItem = {
-    view: vnode => m('div', m.trust(vnode.attrs.line)),
+    view: ({ attrs }) => m('div', attrs, m.trust(attrs.line)),
   }
 
   const view = () => {
