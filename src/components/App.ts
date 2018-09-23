@@ -9,6 +9,7 @@ const ansi = new AnsiUp()
 ansi.use_classes = true
 
 import Virtualized from 'src/widgets/Virtualized'
+import EmapView from 'src/components/EmapView'
 import HpView from 'src/components/HpView'
 
 const debug = require('debug')('bamc-cw:App')
@@ -41,6 +42,21 @@ const gmcpHandlerBuilder = (bamc, state) => ({
     state.vitals = payload
     m.redraw()
   },
+  'room.location': payload => {
+    state.room = payload
+    if(state.emap.name == payload.map) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'cmd',
+      message: `load_map ${payload.map}`,
+    })
+    m.redraw()
+  },
+  'map.data': payload => {
+    state.emap = payload
+    m.redraw()
+  },
 })
 
 export default vnode => {
@@ -50,6 +66,8 @@ export default vnode => {
     prevCommand: null,
     lockScroll: false,
 
+    room: {},
+    emap: {},
     vitals: {},
   }
 
@@ -190,7 +208,10 @@ export default vnode => {
           renderItem: LineItem,
         }),
         m('.side-view', [
-          m('div', 'emap'),
+          m(EmapView, {
+            room: state.room,
+            emap: state.emap,
+          }),
           m(HpView, state.vitals),
         ]),
       ]),
