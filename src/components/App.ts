@@ -71,6 +71,25 @@ export default vnode => {
     handler(payload)
   })
 
+  bamc.on('iac:do', v => {
+    if(v !== 91) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'raw',
+      bytes: [255, 251, 91],
+    })
+  })
+  bamc.on('iac:will', v => {
+    if(v !== 201) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'raw',
+      bytes: [255, 253, 201],
+    })
+  })
+
   async function updateLine(line) {
     bufferedLines.push(ansi.ansi_to_html(line))
 

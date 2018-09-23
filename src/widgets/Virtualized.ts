@@ -95,6 +95,7 @@ export default function Virtualized(vnode) {
     }, lines.slice(start).map(({key, line}) => {
       const i = key
       const offset = lineOffsets[i]
+      // already measured
       if(offset !== undefined) {
         if(key > end) {
           return null
