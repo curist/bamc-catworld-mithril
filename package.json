@@ -4,7 +4,7 @@
   "scripts": {
     "start": "parcel src/index.html",
     "prebuild": "rm -rf dist",
-    "build": "parcel build src/index.html"
+    "build": "parcel build src/index.html --public-url /bamc-catworld-mithril/"
   },
   "devDependencies": {
     "@types/mithril": "^1.1.12",
