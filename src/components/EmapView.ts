@@ -15,7 +15,6 @@ export default () => {
         map: mapData,
       },
     } = vnode.attrs
-    console.log(vnode.attrs.room)
     if(!title || !mapData) {
       return m('.emap', 'no map data')
     }
@@ -28,16 +27,14 @@ export default () => {
       for(let j = 0; j < rowData.length; j++) {
         const v = rowData[j]
         if(v == code) {
-          console.log(i, j)
           marginLeft = -1 * (j * 12 + 6) + 125 + 'px'
           marginTop = -1 * (i * 12 + 18) + 125 + 'px'
-          console.log(marginLeft, marginTop)
           break
         }
       }
     }
     return m('.emap', [
-      m('.title', [ mapLocation, name, title, code ]),
+      m('.title', [ title ]),
       m('.wrapper', {
         style: {
           marginTop, marginLeft,
@@ -49,10 +46,7 @@ export default () => {
             return m('.node', String.fromCharCode(v))
           }
           const displayName = param[v] && param[v].dn || '□'
-          return m('.node', {
-            class: active,
-            title: v,
-          }, displayName)
+          return m('.node', { class: active, title: v }, displayName)
         }))
       }))
     ])
