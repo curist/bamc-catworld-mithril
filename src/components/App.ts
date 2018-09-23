@@ -134,11 +134,13 @@ export default vnode => {
     state.lockChatScroll = !lockChatScroll
   }
 
-  function toggleChatView(e) {
+  async function toggleChatView(e) {
     e.preventDefault()
     const { showChat } = state
     state.showChat = !showChat
     m.redraw()
+    await delay(0)
+    el.content.scrollTop = el.content.scrollHeight
   }
 
   async function sendCommand(e) {
