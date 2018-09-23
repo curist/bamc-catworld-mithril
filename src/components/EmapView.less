@@ -1,0 +1,38 @@
+.emap {
+    border: 1px dashed #ccc;
+    height: 253px;
+    width: 252px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    overflow: hidden;
+
+    & > .title {
+        background-color: white;
+        height: 30px;
+        line-height: 30px;
+        z-index: 10;
+        border-bottom: 1px dashed #ccc;
+        color: #333;
+        text-align: center;
+    }
+
+    & > .wrapper {
+
+        & > .row {
+            display: flex;
+
+            & > .node {
+                height: 1em;
+                width: 1em;
+                font-size: 12px;
+
+                &.active {
+                    color: red;
+                }
+            }
+        }
+    }
+
+}
+

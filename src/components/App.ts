@@ -9,6 +9,8 @@ const ansi = new AnsiUp()
 ansi.use_classes = true
 
 import Virtualized from 'src/widgets/Virtualized'
+import EmapView from 'src/components/EmapView'
+import HpView from 'src/components/HpView'
 
 const debug = require('debug')('bamc-cw:App')
 
@@ -17,7 +19,7 @@ import './App.less'
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const defer = async task => (await delay(0), task())
 
-const gmcpHandlerBuilder = bamc => ({
+const gmcpHandlerBuilder = (bamc, state) => ({
   'auto-login.username': payload => {
     bamc.emit('action', {
       type: 'send',
@@ -36,6 +38,25 @@ const gmcpHandlerBuilder = bamc => ({
       message: 'sync_time',
     })
   },
+  'char.vitals': payload => {
+    state.vitals = payload
+    m.redraw()
+  },
+  'room.location': payload => {
+    state.room = payload
+    if(state.emap.name == payload.map) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'cmd',
+      message: `load_map ${payload.map}`,
+    })
+    m.redraw()
+  },
+  'map.data': payload => {
+    state.emap = payload
+    m.redraw()
+  },
 })
 
 export default vnode => {
@@ -43,8 +64,11 @@ export default vnode => {
     commandHistory: [],
     commandHistoryIndex: null,
     prevCommand: null,
-    shouldScroll: false,
     lockScroll: false,
+
+    room: {},
+    emap: {},
+    vitals: {},
   }
 
   let bufferedLines = []
@@ -55,21 +79,40 @@ export default vnode => {
     input: null,
   }
 
-  let addData
+  let addLines
 
   const bamc = connect()
   bamc.on('line', updateLine)
 
   bamc.on('iac:sub', payload => debug(payload))
 
-  const gmcpHandlers = gmcpHandlerBuilder(bamc)
+  const gmcpHandlers = gmcpHandlerBuilder(bamc, state)
   bamc.on('bamc-cw:gmcp', async ({ name, payload }) => {
-    debug(name, payload)
     const handler = gmcpHandlers[name]
     if(!handler) {
+      debug(name, payload)
       return
     }
     handler(payload)
+  })
+
+  bamc.on('iac:do', v => {
+    if(v !== 91) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'raw',
+      bytes: [255, 251, 91],
+    })
+  })
+  bamc.on('iac:will', v => {
+    if(v !== 201) {
+      return
+    }
+    bamc.emit('action', {
+      type: 'raw',
+      bytes: [255, 253, 201],
+    })
   })
 
   async function updateLine(line) {
@@ -82,12 +125,7 @@ export default vnode => {
     refreshLineTimeout = setTimeout(async () => {
       refreshLineTimeout = null
 
-      if(state.lockScroll) {
-        return
-      }
-      state.shouldScroll = true
-
-      addData(bufferedLines)
+      addLines(bufferedLines)
       bufferedLines = []
     }, 20)
   }
@@ -96,14 +134,6 @@ export default vnode => {
     e.preventDefault()
     const { lockScroll } = state
     state.lockScroll = !lockScroll
-
-    // previously locked, should update buffer
-    if( lockScroll ) {
-      state.shouldScroll = true
-
-      addData(bufferedLines)
-      bufferedLines = []
-    }
   }
 
   async function sendCommand(e) {
@@ -160,36 +190,31 @@ export default vnode => {
     }
   }
 
-  const oncreate = async vn => {
-    // defer to wait for other dom nodes refs
-    await delay(0)
-
-    const observer = new MutationObserver(mutations => {
-      if(!state.shouldScroll) {
-        return
-      }
-      state.shouldScroll = false
-      el.container.scrollTop = el.container.scrollHeight
-    })
-    observer.observe(el.container, { childList: true })
-
-  }
-
   const LineItem = {
-    view: vnode => m('div', m.trust(vnode.attrs.data)),
+    view: ({ attrs }) => m('div', attrs, m.trust(attrs.line)),
   }
 
   const view = () => {
     const { lockScroll } = state
     return m('.App', [
-      m(Virtualized, {
-        class: `${THEME} container`,
-        oncreate: vn => {
-          el.container = vn.dom
-          addData = vn.state.addData
-        },
-        renderItem: LineItem,
-      }),
+      m('.main-view', [
+        m(Virtualized, {
+          class: `${THEME} container`,
+          oncreate: vn => {
+            el.container = vn.dom
+            addLines = vn.state.addLines
+          },
+          lockScroll,
+          renderItem: LineItem,
+        }),
+        m('.side-view', [
+          m(EmapView, {
+            room: state.room,
+            emap: state.emap,
+          }),
+          m(HpView, state.vitals),
+        ]),
+      ]),
       m('form', { onsubmit: sendCommand }, [
         m('input.input', {
           oncreate: vn => el.input = vn.dom,
@@ -205,5 +230,5 @@ export default vnode => {
     ])
   }
 
-  return { view, oncreate }
+  return { view }
 }
