@@ -27,8 +27,8 @@ export default () => {
       for(let j = 0; j < rowData.length; j++) {
         const v = rowData[j]
         if(v == code) {
-          marginLeft = -1 * (j * 12 + 6) + 125 + 'px'
-          marginTop = -1 * (i * 12 + 18) + 125 + 'px'
+          marginLeft = -1 * (j * 14 + 7) + 150 + 'px'
+          marginTop = -1 * (i * 14 + 21) + 150 + 'px'
           break
         }
       }
