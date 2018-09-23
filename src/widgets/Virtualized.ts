@@ -36,17 +36,6 @@ export default function Virtualized(vnode) {
     m.redraw()
   }
 
-  const StubView = {
-    view: vnode => m('div', {
-      class: vnode.attrs.class,
-      style: {
-        height: vnode.attrs.height + 'px',
-        width: '100%',
-        padding: '0px',
-      }
-    })
-  }
-
   function findFirstVisibleIndexRange(scrollTop) {
     let i = 0, len = lineOffsets.length, start, end
     while(i < len && scrollTop >= lineOffsets[i++]);
@@ -71,7 +60,7 @@ export default function Virtualized(vnode) {
     state.lockScroll = vnode.attrs.lockScroll
   }
 
-  const view = () => {
+  const view = vnode => {
     const [ start, end ] = findFirstVisibleIndexRange(state.scrollTop)
     const totalHeight = sum(lineHeights)
     return m('.virtualized', {

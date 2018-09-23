@@ -1,6 +1,7 @@
 import m from 'mithril'
 
 import connect from 'src/connect'
+import gmcpHandlerBuilder from 'src/gmcpHandlerBuilder'
 import { THEME } from 'src/config'
 
 import keycode from 'keycode'
@@ -19,52 +20,30 @@ import './App.less'
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const defer = async task => (await delay(0), task())
 
-const gmcpHandlerBuilder = (bamc, state) => ({
-  'auto-login.username': payload => {
-    bamc.emit('action', {
-      type: 'send',
-      message: localStorage.user,
-    })
-  },
-  'auto-login.password': payload => {
-    bamc.emit('action', {
-      type: 'send',
-      message: localStorage.password,
-    })
-  },
-  'char.id': charname => {
-    bamc.emit('action', {
-      type: 'cmd',
-      message: 'sync_time',
-    })
-  },
-  'char.vitals': payload => {
-    state.vitals = payload
-    m.redraw()
-  },
-  'room.location': payload => {
-    state.room = payload
-    if(state.emap.name == payload.map) {
-      return
-    }
-    bamc.emit('action', {
-      type: 'cmd',
-      message: `load_map ${payload.map}`,
-    })
-    m.redraw()
-  },
-  'map.data': payload => {
-    state.emap = payload
-    m.redraw()
-  },
-})
+const padLeft = (s='', len=0, pad=' ') => {
+  const sLen = s.length
+  if(sLen > len) {
+    return s
+  }
+  return Array.from({length: len - sLen}).fill(pad).join('') + s
+}
+
+const formatDate = date => {
+  const h = padLeft('' + date.getHours(), 2, '0')
+  const m = padLeft('' + date.getMinutes(), 2, '0')
+  const s = padLeft('' + date.getSeconds(), 2, '0')
+  return `${h}:${m}:${s}`
+}
 
 export default vnode => {
   const state = {
     commandHistory: [],
     commandHistoryIndex: null,
     prevCommand: null,
+
+    chatBegin: false,
     lockScroll: false,
+    showChat: false,
 
     room: {},
     emap: {},
@@ -75,11 +54,14 @@ export default vnode => {
   let refreshLineTimeout = null
 
   const el = {
-    container: null,
+    content: null,
     input: null,
   }
 
-  let addLines
+  const fns = {
+    addLines: null,
+    addChatLine: null,
+  }
 
   const bamc = connect()
   bamc.on('line', updateLine)
@@ -116,6 +98,15 @@ export default vnode => {
   })
 
   async function updateLine(line) {
+    if(state.chatBegin) {
+      const date = new Date
+      const time = formatDate(date)
+
+      fns.addChatLine(`[${time}]` + ansi.ansi_to_html(line))
+      state.showChat = true
+      state.chatBegin = false
+      defer(() => el.content.scrollTop = el.content.scrollHeight)
+    }
     bufferedLines.push(ansi.ansi_to_html(line))
 
     if(refreshLineTimeout) {
@@ -125,7 +116,7 @@ export default vnode => {
     refreshLineTimeout = setTimeout(async () => {
       refreshLineTimeout = null
 
-      addLines(bufferedLines)
+      fns.addLines(bufferedLines)
       bufferedLines = []
     }, 20)
   }
@@ -134,6 +125,13 @@ export default vnode => {
     e.preventDefault()
     const { lockScroll } = state
     state.lockScroll = !lockScroll
+  }
+
+  function toggleChatView(e) {
+    e.preventDefault()
+    const { showChat } = state
+    state.showChat = !showChat
+    m.redraw()
   }
 
   async function sendCommand(e) {
@@ -196,17 +194,28 @@ export default vnode => {
 
   const view = () => {
     const { lockScroll } = state
+    const chatViewClass = !state.showChat ? 'hide' : ''
+
     return m('.App', [
-      m('.main-view', [
-        m(Virtualized, {
-          class: `${THEME} container`,
-          oncreate: vn => {
-            el.container = vn.dom
-            addLines = vn.state.addLines
-          },
-          lockScroll,
-          renderItem: LineItem,
-        }),
+      m('.content', [
+        m('.main-view', [
+          m(Virtualized, {
+            class: `${THEME} chat-view ${chatViewClass}`,
+            oncreate: vn => {
+              fns.addChatLine = vn.state.addLine
+            },
+            renderItem: LineItem,
+          }),
+          m(Virtualized, {
+            class: `${THEME} container`,
+            oncreate: vn => {
+              el.content = vn.dom
+              fns.addLines = vn.state.addLines
+            },
+            lockScroll,
+            renderItem: LineItem,
+          }),
+        ]),
         m('.side-view', [
           m(EmapView, {
             room: state.room,
@@ -226,6 +235,10 @@ export default vnode => {
           type: 'button',
           onclick: toggleScrollLock,
         }, lockScroll ? m.trust('&#128274;') : m.trust('&#128275;')),
+        m('button', {
+          type: 'button',
+          onclick: toggleChatView,
+        }, m.trust('&#128172;')),
       ]),
     ])
   }
