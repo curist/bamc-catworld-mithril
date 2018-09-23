@@ -182,6 +182,12 @@ export default vnode => {
         state.commandHistoryIndex = nextCmdHistoryIndex
         break
       }
+      case 'c': {
+        if(e.ctrlKey) {
+          toggleChatView(e)
+        }
+        break;
+      }
       default: {
 
       }
