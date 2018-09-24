@@ -108,7 +108,7 @@ export default vnode => {
           m(Bar, {
             value: water,
             maxValue: max_water,
-            color: 'aqua',
+            color: 'blue',
             length: 120,
             horizontal: true,
           }),
