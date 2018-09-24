@@ -116,12 +116,17 @@ export default function Virtualized(vnode) {
           let MIN_HEIGHT = Math.min.apply(null, lineHeights.slice(0, 3).concat([0]))
           const height = vnode.dom.clientHeight || MIN_HEIGHT
           const prevHeight = lineHeights[i - 1] || MIN_HEIGHT
-          const prevOffset = lineOffsets[i - 1] !== undefined 
+          const prevOffset = lineOffsets[i - 1] !== undefined
             ? lineOffsets[i - 1]
-            : totalHeight
+            :  totalHeight
+
+          let offset = prevOffset + prevHeight
+          if(offset + height < totalHeight) {
+            offset = totalHeight - height
+          }
 
           lineHeights[i] = height
-          lineOffsets[i] = prevOffset + prevHeight
+          lineOffsets[i] = offset
           m.redraw()
         },
       })
