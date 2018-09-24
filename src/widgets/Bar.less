@@ -1,7 +1,9 @@
+@width: 6px;
+
 .bar-widget {
     position: relative;
-    border: 1px solid #111;
-    width: 5px;
+    border: 1px solid #ccc;
+    width: @width;
     background-color: white;
 
     & > .bar-value {
@@ -13,7 +15,7 @@
 
     &.horizontal {
         width: inherit;
-        height: 5px;
+        height: @width;
 
         & > .bar-value {
             bottom: inherit;

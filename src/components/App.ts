@@ -13,27 +13,11 @@ import Virtualized from 'src/widgets/Virtualized'
 import EmapView from 'src/components/EmapView'
 import HpView from 'src/components/HpView'
 
+import { delay, defer, padLeft, formatDate } from 'src/utils'
+
 const debug = require('debug')('bamc-cw:App')
 
 import './App.less'
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const defer = async task => (await delay(0), task())
-
-const padLeft = (s='', len=0, pad=' ') => {
-  const sLen = s.length
-  if(sLen > len) {
-    return s
-  }
-  return Array.from({length: len - sLen}).fill(pad).join('') + s
-}
-
-const formatDate = date => {
-  const h = padLeft('' + date.getHours(), 2, '0')
-  const m = padLeft('' + date.getMinutes(), 2, '0')
-  const s = padLeft('' + date.getSeconds(), 2, '0')
-  return `${h}:${m}:${s}`
-}
 
 export default vnode => {
   const state = {

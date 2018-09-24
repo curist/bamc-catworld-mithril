@@ -1,0 +1,63 @@
+.hp-view {
+    background-color: #222;
+    margin-top: 5px;
+    padding: 5px;
+    color: #eee;
+    & > .main-stats {
+        display: inline-block;
+        flex-direction: column;
+        & > .title {
+            color: slategray;
+        }
+
+        & > .bars {
+            & > * {
+                display: inline-block;
+                margin-left: 4px;
+                margin-right: 6px;
+            }
+        }
+    }
+
+    & > .main-stats-2 {
+        display: inline-block;
+        vertical-align: top;
+        margin-left: 25px;
+        & > .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            & > .title {
+                margin-right: 8px;
+                color: dodgerblue;
+            }
+            & > .values {
+                display: flex;
+                white-space: pre-wrap;
+
+                & > .sep {
+                    margin: 0 3px;
+                }
+
+                & > .enforce-level {
+                    margin-left: 5px;
+                    color: gold;
+                }
+            }
+        }
+    }
+
+    & > .other-stats {
+        padding: 10px 30px;
+        & > .row {
+            display: flex;
+            width: 180px;
+            justify-content: space-between;
+            align-items: center;
+
+            & > .title {
+                color: ivory;
+            }
+        }
+    }
+}

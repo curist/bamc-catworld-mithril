@@ -1,9 +1,9 @@
 import m from 'mithril'
 import Bar from 'src/widgets/Bar'
 
-function formatPercentage(num) {
-  return Math.floor(num * 100)
-}
+import { padLeft } from 'src/utils'
+
+import './HpView.less'
 
 export default vnode => {
 
@@ -26,51 +26,107 @@ export default vnode => {
     if(!gin) {
       return
     }
-    return m('ul.HpView', {
-    }, [
-      m('li', ['精:', gin, '/', eff_gin, `(${formatPercentage(eff_gin / max_gin)}%)`]),
-      m('li', ['gin', m(Bar, {
-        value: gin,
-        maxValue: eff_gin,
-        color: 'gold',
-        length: 50,
-      })]),
-      m('li', ['靈力:', atman, '/', max_atman, `(+${atman_factor})`]),
-      m('li', ['氣:', kee, '/', eff_kee, `(${formatPercentage(eff_kee / max_kee)}%)`]),
-      m('li', ['kee', m(Bar, {
-        value: kee,
-        maxValue: eff_kee,
-        color: 'lime',
-        length: 50,
-      })]),
-      m('li', ['內力:', force, '/', max_force, `(+${force_factor})`]),
-      m('li', ['神:', sen, '/', eff_sen, `(${formatPercentage(eff_sen / max_sen)}%)`]),
-      m('li', ['sen', m(Bar, {
-        value: sen,
-        maxValue: eff_sen,
-        color: 'magenta',
-        length: 50,
-      })]),
-      m('li', ['法力:', mana, '/', max_mana, `(+${mana_factor})`]),
-      m('li', ['食物:', food, '/', max_food]),
-      m('li', m(Bar, {
-        value: food,
-        maxValue: max_food,
-        color: 'peru',
-        length: 60,
-        horizontal: true,
-      })),
-      m('li', ['飲水:', water, '/', max_water]),
-      m('li', m(Bar, {
-        value: water,
-        maxValue: max_water,
-        color: 'aqua',
-        length: 60,
-        horizontal: true,
-      })),
-      m('li', ['潛能:', pot]),
-      m('li', ['經驗:', exp]),
-      m('li', ['狀態:', status]),
+    return m('.hp-view', [
+      m('.main-stats', [
+        m('.title', '精氣神'),
+        m('.bars', [
+          m(Bar, {
+            value: gin,
+            maxValue: eff_gin,
+            color: 'gold',
+            length: 60,
+          }),
+          m(Bar, {
+            value: kee,
+            maxValue: eff_kee,
+            color: 'lime',
+            length: 60,
+          }),
+          m(Bar, {
+            value: sen,
+            maxValue: eff_sen,
+            color: 'magenta',
+            length: 60,
+          })
+        ]),
+      ]),
+      m('.main-stats-2', [
+        m('.row', [
+          m('.title', '靈力'),
+          m('.values', [
+            m('.value', {
+              style: {
+                color: 'gold',
+              },
+            }, atman),
+            m('.sep', '/'),
+            m('.max-value', padLeft(max_atman + '', 4)),
+            m('.enforce-level', `+${atman_factor}`),
+          ]),
+        ]),
+        m('.row', [
+          m('.title', '內力'),
+          m('.values', [
+            m('.value', {
+              style: {
+                color: 'lime',
+              },
+            }, force),
+            m('.sep', '/'),
+            m('.max-value', padLeft(max_force + '', 4)),
+            m('.enforce-level', `+${force_factor}`),
+          ]),
+        ]),
+        m('.row', [
+          m('.title', '法力'),
+          m('.values', [
+            m('.value', {
+              style: {
+                color: 'magenta',
+              },
+            }, mana),
+            m('.sep', '/'),
+            m('.max-value', padLeft(max_mana + '', 4)),
+            m('.enforce-level', `+${force_factor}`),
+          ]),
+        ]),
+      ]),
+
+      m('.other-stats', [
+        m('.row', [
+          m('.title', '食物'),
+          m(Bar, {
+            value: food,
+            maxValue: max_food,
+            color: 'sandybrown',
+            length: 120,
+            horizontal: true,
+          }),
+        ]),
+        m('.row', [
+          m('.title', '飲水'),
+          m(Bar, {
+            value: water,
+            maxValue: max_water,
+            color: 'aqua',
+            length: 120,
+            horizontal: true,
+          }),
+        ]),
+        m('.row', [
+          m('.title', '潛能'),
+          m('.value', pot),
+        ]),
+        m('.row', [
+          m('.title', '經驗'),
+          m('.value', exp),
+        ]),
+        m('.row', [
+          m('.title', '狀態'),
+          m('.value', status),
+        ]),
+      ]),
+
     ])
   }
 

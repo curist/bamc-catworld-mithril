@@ -9,6 +9,7 @@ export default {
     const orientationKey = horizontal ? 'width' : 'height'
     return m('.bar-widget', {
       class: horizontal ? 'horizontal': '',
+      title: `${value} / ${maxValue}`,
       style: {
         [orientationKey]: `${length + 2}px`,
       },

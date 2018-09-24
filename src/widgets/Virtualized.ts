@@ -1,8 +1,6 @@
 import m from 'mithril'
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
-const sum = arr => arr.reduce((total, n) => total + (n || 0), 0)
+import { delay, sum } from 'src/utils'
 
 export default function Virtualized(vnode) {
   const { renderItem } = vnode.attrs
