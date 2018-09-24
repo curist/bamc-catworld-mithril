@@ -46,7 +46,11 @@ export default () => {
             return m('.node', String.fromCharCode(v))
           }
           const displayName = param[v] && param[v].dn || '□'
-          return m('.node', { class: active, title: v }, displayName)
+          const className = param[v] && (param[v].cn ? 'highlight' : '')
+          return m('.node', {
+            class: `${active} ${className}`,
+            title: v,
+          }, displayName)
         }))
       }))
     ])

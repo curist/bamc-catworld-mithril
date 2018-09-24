@@ -182,6 +182,12 @@ export default vnode => {
         state.commandHistoryIndex = nextCmdHistoryIndex
         break
       }
+      case 'g': {
+        if(e.ctrlKey) {
+          bamc.emit('action', { type: 'send', message: 'gc' })
+        }
+        break;
+      }
       case 'c': {
         if(e.ctrlKey) {
           toggleChatView(e)
@@ -191,6 +197,7 @@ export default vnode => {
       case 'l': {
         if(e.ctrlKey) {
           setScrollLockState(false)
+          el.input.select()
         }
         break;
       }
