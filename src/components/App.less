@@ -19,7 +19,7 @@
 
             & > .chat-view {
                 position: relative;
-                padding: 5px 15px;
+                padding: 8px 15px;
                 overflow: hidden;
                 height: 180px;
                 border-bottom: 5px solid white;
@@ -48,18 +48,24 @@
                 }
             }
 
-            & > .container {
+            & > .game-view {
+                position: relative;
+                padding: 8px 15px;
+                overflow: hidden;
                 flex: 1;
-                overflow: auto;
-                margin: 0;
-                padding: 15px;
+                & > .virtualized {
+                    height: 100%;
+                    width: 100%;
+                    overflow: auto;
 
-                & > div {
-                    min-height: 1.1em;
-                    line-height: 1.1em;
-                    white-space: pre-wrap;
+                    & > div {
+                        min-height: 1.1em;
+                        line-height: 1.1em;
+                        white-space: pre-wrap;
+                    }
                 }
             }
+
         }
 
 

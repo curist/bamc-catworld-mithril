@@ -211,15 +211,17 @@ export default vnode => {
               onclick: toggleChatScrollLock,
             },  lockChatScroll ? m.trust('&#128274;') : m.trust('&#128275;')),
           ]),
-          m(Virtualized, {
-            class: `${THEME} container`,
-            oncreate: vn => {
-              el.content = vn.dom
-              fns.addLines = vn.state.addLines
-            },
-            lockScroll,
-            renderItem: LineItem,
-          }),
+          m('.game-view', [
+            m(Virtualized, {
+              class: THEME,
+              oncreate: vn => {
+                el.content = vn.dom
+                fns.addLines = vn.state.addLines
+              },
+              lockScroll,
+              renderItem: LineItem,
+            }),
+          ]),
         ]),
         m('.side-view', [
           m(EmapView, {
