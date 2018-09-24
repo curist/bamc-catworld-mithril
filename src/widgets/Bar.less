@@ -1,0 +1,25 @@
+.bar-widget {
+    position: relative;
+    border: 1px solid #111;
+    width: 5px;
+    background-color: white;
+
+    & > .bar-value {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+    }
+
+    &.horizontal {
+        width: inherit;
+        height: 5px;
+
+        & > .bar-value {
+            bottom: inherit;
+            top: 0px;
+            width: inherit;
+            height: 100%;
+        }
+    }
+}
