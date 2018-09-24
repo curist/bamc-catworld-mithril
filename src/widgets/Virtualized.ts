@@ -3,7 +3,7 @@ import m from 'mithril'
 import { delay, sum } from 'src/utils'
 
 export default function Virtualized(vnode) {
-  const { renderItem } = vnode.attrs
+  const { renderItem, requestLock = () => {} } = vnode.attrs
   let lines = []
   let lineHeights = []
   let lineOffsets = []
@@ -72,7 +72,10 @@ export default function Virtualized(vnode) {
         el.scroll = vnode.dom
       },
       onscroll(e) {
-        state.scrollTop = e.target.scrollTop
+        const { scrollTop, scrollHeight, offsetHeight } = e.target
+        const reachedBottom = (scrollTop + offsetHeight == scrollHeight)
+        requestLock(!reachedBottom)
+        state.scrollTop = scrollTop
       },
     }, m('.wrap', {
       oncreate(vnode) {

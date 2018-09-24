@@ -105,10 +105,18 @@ export default vnode => {
     }, 20)
   }
 
+  async function setScrollLockState(lock) {
+    state.lockScroll = lock
+  }
+
   async function toggleScrollLock(e) {
     e.preventDefault()
     const { lockScroll } = state
     state.lockScroll = !lockScroll
+  }
+
+  async function setChatScrollLockState(lock) {
+    state.lockChatScroll = lock
   }
 
   async function toggleChatScrollLock(e) {
@@ -205,6 +213,7 @@ export default vnode => {
               },
               lockScroll: lockChatScroll,
               renderItem: LineItem,
+              requestLock: setChatScrollLockState,
             }),
             m('button', {
               type: 'button',
@@ -220,6 +229,7 @@ export default vnode => {
               },
               lockScroll,
               renderItem: LineItem,
+              requestLock: setScrollLockState,
             }),
           ]),
         ]),
