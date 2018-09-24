@@ -58,10 +58,10 @@ export default vnode => {
               style: {
                 color: 'gold',
               },
-            }, atman),
+            }, padLeft(atman, 4)),
             m('.sep', '/'),
-            m('.max-value', padLeft(max_atman + '', 4)),
-            m('.enforce-level', `+${atman_factor}`),
+            m('.max-value', padLeft(max_atman, 4)),
+            m('.enforce-level', `+${padLeft(atman_factor, 2)}`),
           ]),
         ]),
         m('.row', [
@@ -71,10 +71,10 @@ export default vnode => {
               style: {
                 color: 'lime',
               },
-            }, force),
+            }, padLeft(force, 4)),
             m('.sep', '/'),
-            m('.max-value', padLeft(max_force + '', 4)),
-            m('.enforce-level', `+${force_factor}`),
+            m('.max-value', padLeft(max_force, 4)),
+            m('.enforce-level', `+${padLeft(force_factor, 2)}`),
           ]),
         ]),
         m('.row', [
@@ -84,10 +84,10 @@ export default vnode => {
               style: {
                 color: 'magenta',
               },
-            }, mana),
+            }, padLeft(mana, 4)),
             m('.sep', '/'),
             m('.max-value', padLeft(max_mana + '', 4)),
-            m('.enforce-level', `+${force_factor}`),
+            m('.enforce-level', `+${padLeft(mana_factor, 2)}`),
           ]),
         ]),
       ]),
