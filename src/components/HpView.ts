@@ -54,6 +54,7 @@ export default vnode => {
         m('.row', [
           m('.title', '靈力'),
           m('.values', [
+            m('.sep', '['),
             m('.value', {
               style: {
                 color: 'gold',
@@ -61,12 +62,14 @@ export default vnode => {
             }, padLeft(atman, 4)),
             m('.sep', '/'),
             m('.max-value', padLeft(max_atman, 4)),
+            m('.sep', ']'),
             m('.enforce-level', `+${padLeft(atman_factor, 2)}`),
           ]),
         ]),
         m('.row', [
           m('.title', '內力'),
           m('.values', [
+            m('.sep', '['),
             m('.value', {
               style: {
                 color: 'lime',
@@ -74,12 +77,14 @@ export default vnode => {
             }, padLeft(force, 4)),
             m('.sep', '/'),
             m('.max-value', padLeft(max_force, 4)),
+            m('.sep', ']'),
             m('.enforce-level', `+${padLeft(force_factor, 2)}`),
           ]),
         ]),
         m('.row', [
           m('.title', '法力'),
           m('.values', [
+            m('.sep', '['),
             m('.value', {
               style: {
                 color: 'magenta',
@@ -87,6 +92,7 @@ export default vnode => {
             }, padLeft(mana, 4)),
             m('.sep', '/'),
             m('.max-value', padLeft(max_mana + '', 4)),
+            m('.sep', ']'),
             m('.enforce-level', `+${padLeft(mana_factor, 2)}`),
           ]),
         ]),
