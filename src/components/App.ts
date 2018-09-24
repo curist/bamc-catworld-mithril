@@ -188,6 +188,12 @@ export default vnode => {
         }
         break;
       }
+      case 'l': {
+        if(e.ctrlKey) {
+          setScrollLockState(false)
+        }
+        break;
+      }
       default: {
 
       }
