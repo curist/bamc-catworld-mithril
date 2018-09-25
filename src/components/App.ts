@@ -87,6 +87,14 @@ export default vnode => {
       const date = new Date
       const time = formatDate(date)
 
+      // send messages to specific telegram channel
+      if(localStorage.TELEGRAM_API_TOKEN && localStorage.TELEGRAM_CHANNEL_ID) {
+        const { TELEGRAM_API_TOKEN, TELEGRAM_CHANNEL_ID } = localStorage
+        const TELEGRAM_URL = `https://api.telegram.org/bot${TELEGRAM_API_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHANNEL_ID}&text=`
+        const pureLine = line.replace(/\x1b\[[0-9;]*[a-zA-Z]/g, '')
+        m.request(`${TELEGRAM_URL}${encodeURIComponent(pureLine)}`)
+      }
+
       fns.addChatLine(`[${time}]` + ansi.ansi_to_html(line))
       state.showChat = true
       state.chatBegin = false
