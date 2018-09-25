@@ -100,7 +100,8 @@ export default function Virtualized(vnode) {
           key, line,
           style: {
             position: 'absolute',
-            top: offset + 'px',
+            top: '0px',
+            transform: `translateY(${offset}px)`,
             width: '100%',
           },
         })
