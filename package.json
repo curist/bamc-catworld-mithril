@@ -18,7 +18,7 @@
     "src": "./src"
   },
   "dependencies": {
-    "ansi_up": "^3.0.0",
+    "ansi_up": "^2.0.3",
     "bamc-core": "^0.2.0",
     "debug": "^4.0.0",
     "keycode": "^2.2.0",
