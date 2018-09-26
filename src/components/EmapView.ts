@@ -34,7 +34,7 @@ export default () => {
       }
     }
     return m('.emap', [
-      m('.title', [ title ]),
+      m('.title', [ title, m('.sub-title', `${name}.${code}`) ]),
       m('.wrapper', {
         style: {
           marginTop, marginLeft,
