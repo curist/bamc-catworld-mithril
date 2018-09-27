@@ -32,6 +32,7 @@ export default vnode => {
 
     room: {},
     emap: {},
+    emapCache: {},
     vitals: {},
   }
 

@@ -35,11 +35,14 @@ const gmcpHandlerBuilder = (bamc, state) => ({
     if(state.emap.name == payload.map) {
       return
     }
+    if(state.emapCache[payload.map]) {
+      state.emap = state.emapCache[payload.map]
+      return
+    }
     bamc.emit('action', {
       type: 'cmd',
       message: `load_map ${payload.map}`,
     })
-    m.redraw()
   },
   'map.data': payload => {
     state.emap = payload
